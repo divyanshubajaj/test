@@ -1,0 +1,305 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name"
+		},
+		"linkedService_workspaceapi": {
+			"type": "string"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/DatasetAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Execute_DatasetChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "DatasetChildAPI",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item().id",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@pipeline().parameters.Bearer_Token",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"parameters": {
+					"Bearer_Token": {
+						"type": "string",
+						"defaultValue": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzBiZjlmMzctZDU1MC00ODc4LTk0OTQtMTA0MTY1NmNhZjI3LyIsImlhdCI6MTY2ODE1MjU3NSwibmJmIjoxNjY4MTUyNTc1LCJleHAiOjE2NjgxNTczMDcsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFWUExoTmc2VlAzWE5FRWJCWE5hZG1MMTc4bTc0dTBzVExkWGErZ3hndGV4cy8vaGV1ZEZqRW9ES0JhUGNsUk9CT2c0eHpRZEtJeFZBK2w4ejZJWDcxbGprZWEvYi9pNXVUbWowSXJQVkdXUT0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiMThmYmNhMTYtMjIyNC00NWY2LTg1YjAtZjdiZjJiMzliM2YzIiwiYXBwaWRhY3IiOiIwIiwiZmFtaWx5X25hbWUiOiJCYW5kbGFtdWRpIiwiZ2l2ZW5fbmFtZSI6IlNyaWxla2hhIiwiaXBhZGRyIjoiMTgzLjgyLjExOS4yNiIsIm5hbWUiOiJTcmlsZWtoYSBCYW5kbGFtdWRpIiwib2lkIjoiYzg5NWMwZWUtNjA4Zi00MTliLThkYTItNTE1NjA5ZDA1OWU0IiwicHVpZCI6IjEwMDMyMDAyMDI3OUZEQUEiLCJyaCI6IjAuQVVZQU41LV9NRkRWZUVpVWxCQkJaV3l2SndrQUFBQUFBQUFBd0FBQUFBQUFBQUJHQUNZLiIsInNjcCI6IkFwcC5SZWFkLkFsbCBDYXBhY2l0eS5SZWFkLkFsbCBDYXBhY2l0eS5SZWFkV3JpdGUuQWxsIENvbnRlbnQuQ3JlYXRlIERhc2hib2FyZC5SZWFkLkFsbCBEYXNoYm9hcmQuUmVhZFdyaXRlLkFsbCBEYXRhZmxvdy5SZWFkLkFsbCBEYXRhZmxvdy5SZWFkV3JpdGUuQWxsIERhdGFzZXQuUmVhZC5BbGwgRGF0YXNldC5SZWFkV3JpdGUuQWxsIEdhdGV3YXkuUmVhZC5BbGwgR2F0ZXdheS5SZWFkV3JpdGUuQWxsIFBpcGVsaW5lLkRlcGxveSBQaXBlbGluZS5SZWFkLkFsbCBQaXBlbGluZS5SZWFkV3JpdGUuQWxsIFJlcG9ydC5SZWFkLkFsbCBSZXBvcnQuUmVhZFdyaXRlLkFsbCBTdG9yYWdlQWNjb3VudC5SZWFkLkFsbCBTdG9yYWdlQWNjb3VudC5SZWFkV3JpdGUuQWxsIFRlbmFudC5SZWFkLkFsbCBUZW5hbnQuUmVhZFdyaXRlLkFsbCBVc2VyU3RhdGUuUmVhZFdyaXRlLkFsbCBXb3Jrc3BhY2UuUmVhZC5BbGwgV29ya3NwYWNlLlJlYWRXcml0ZS5BbGwiLCJzaWduaW5fc3RhdGUiOlsia21zaSJdLCJzdWIiOiJldXpJUjRTY1Y2VmRHTnpRV1R3Slo3Y05MaEpkWWZ2SHVkNFpmMjNwbExJIiwidGlkIjoiMzBiZjlmMzctZDU1MC00ODc4LTk0OTQtMTA0MTY1NmNhZjI3IiwidW5pcXVlX25hbWUiOiJTcmlsZWtoYS5CQHNucC5jb20iLCJ1cG4iOiJTcmlsZWtoYS5CQHNucC5jb20iLCJ1dGkiOiJTODhXeUdoZXowZXdOQ25aZTNVSkFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXX0.uN38XXxuAMSA9TG7btVz5alLWKDDxl-9ZqhiljI7vZ6P_28uYYs8X6FywzwJRFDiSTKy53AmfOIGHXrrieJRhUc9uGaMvnqNNeI0FlrBVI4MiZqJnR0qKyLeCvcghoKutoQTXk_nrxLWFW8fN4eMfMQJt3hQAUNSrBvQKI7ukuarpTAZDQAPshZ9AirVcdtExSCgX0xXK5hE5XMKTifE3rWhOiRFa41mqg_u-2vbgzsmCnrhL3bSExqFjPBDiHxdOZV5igmnIXx8mde6JVEBNtv4tQt_2NPTQ-0Q2YzIIxa_98MQbRj1JYAoxyi0F4ThI46oM8f4I_9fdEX5y3vlPg"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-11T10:32:37Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/DatasetChildAPI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DatasetChildAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EachDataset",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DatasetWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DatasetWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Dataset_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dataset]",
+										"storedProcedureParameters": {
+											"addRowsAPIEnabled": {
+												"value": {
+													"value": "@item().addRowsAPIEnabled",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"configuredBy": {
+												"value": {
+													"value": "@item().configuredBy",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"createdDate": {
+												"value": {
+													"value": "@item().createdDate",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											},
+											"createReportEmbedURL": {
+												"value": {
+													"value": "@item().createReportEmbedURL",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isEffectiveIdentityRequired": {
+												"value": {
+													"value": "@item().isEffectiveIdentityRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isEffectiveIdentityRolesRequired": {
+												"value": {
+													"value": "@item().isEffectiveIdentityRolesRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isOnPremGatewayRequired": {
+												"value": {
+													"value": "@item().isOnPremGatewayRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isRefreshable": {
+												"value": {
+													"value": "@item().isRefreshable",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"qnaEmbedURL": {
+												"value": {
+													"value": "@item().qnaEmbedURL",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"targetStorageMode": {
+												"value": {
+													"value": "@item().targetStorageMode",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"upstreamDatasets": {
+												"value": {
+													"value": "@item().upstreamDatasets",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"users": {
+												"value": {
+													"value": "@item().users",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "[parameters('linkedService_workspaceapi')]",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "DatasetWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/datasets')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T10:02:50Z"
+			},
+			"dependsOn": []
+		}
+	]
+}
