@@ -29,7 +29,7 @@
 					"method": "GET",
 					"headers": {
 						"Authorization": {
-							"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+							"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
 							"type": "Expression"
 						}
 					}
@@ -72,7 +72,7 @@
 										"type": "Expression"
 									},
 									"Bearer_Token": {
-										"value": "@pipeline().parameters.Bearer_Token",
+										"value": "@activity('Get Access Token').output.access_token",
 										"type": "Expression"
 									}
 								}
@@ -103,18 +103,12 @@
 						"Content-Type": "application/x-www-form-urlencoded"
 					},
 					"body": {
-						"value": "grant_type=client_credentials&client_id=85db3560-2d58-4e6c-b350-2da05edd854e&client_secret=y8L8Q~ysn511tphgaHTmTDljwZE7bP3ba9cs7dix&resource=https://analysis.windows.net/powerbi/api",
+						"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
 						"type": "Expression"
 					}
 				}
 			}
 		],
-		"parameters": {
-			"Bearer_Token": {
-				"type": "string",
-				"defaultValue": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzBiZjlmMzctZDU1MC00ODc4LTk0OTQtMTA0MTY1NmNhZjI3LyIsImlhdCI6MTY2ODE1MjU3NSwibmJmIjoxNjY4MTUyNTc1LCJleHAiOjE2NjgxNTczMDcsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFWUExoTmc2VlAzWE5FRWJCWE5hZG1MMTc4bTc0dTBzVExkWGErZ3hndGV4cy8vaGV1ZEZqRW9ES0JhUGNsUk9CT2c0eHpRZEtJeFZBK2w4ejZJWDcxbGprZWEvYi9pNXVUbWowSXJQVkdXUT0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiMThmYmNhMTYtMjIyNC00NWY2LTg1YjAtZjdiZjJiMzliM2YzIiwiYXBwaWRhY3IiOiIwIiwiZmFtaWx5X25hbWUiOiJCYW5kbGFtdWRpIiwiZ2l2ZW5fbmFtZSI6IlNyaWxla2hhIiwiaXBhZGRyIjoiMTgzLjgyLjExOS4yNiIsIm5hbWUiOiJTcmlsZWtoYSBCYW5kbGFtdWRpIiwib2lkIjoiYzg5NWMwZWUtNjA4Zi00MTliLThkYTItNTE1NjA5ZDA1OWU0IiwicHVpZCI6IjEwMDMyMDAyMDI3OUZEQUEiLCJyaCI6IjAuQVVZQU41LV9NRkRWZUVpVWxCQkJaV3l2SndrQUFBQUFBQUFBd0FBQUFBQUFBQUJHQUNZLiIsInNjcCI6IkFwcC5SZWFkLkFsbCBDYXBhY2l0eS5SZWFkLkFsbCBDYXBhY2l0eS5SZWFkV3JpdGUuQWxsIENvbnRlbnQuQ3JlYXRlIERhc2hib2FyZC5SZWFkLkFsbCBEYXNoYm9hcmQuUmVhZFdyaXRlLkFsbCBEYXRhZmxvdy5SZWFkLkFsbCBEYXRhZmxvdy5SZWFkV3JpdGUuQWxsIERhdGFzZXQuUmVhZC5BbGwgRGF0YXNldC5SZWFkV3JpdGUuQWxsIEdhdGV3YXkuUmVhZC5BbGwgR2F0ZXdheS5SZWFkV3JpdGUuQWxsIFBpcGVsaW5lLkRlcGxveSBQaXBlbGluZS5SZWFkLkFsbCBQaXBlbGluZS5SZWFkV3JpdGUuQWxsIFJlcG9ydC5SZWFkLkFsbCBSZXBvcnQuUmVhZFdyaXRlLkFsbCBTdG9yYWdlQWNjb3VudC5SZWFkLkFsbCBTdG9yYWdlQWNjb3VudC5SZWFkV3JpdGUuQWxsIFRlbmFudC5SZWFkLkFsbCBUZW5hbnQuUmVhZFdyaXRlLkFsbCBVc2VyU3RhdGUuUmVhZFdyaXRlLkFsbCBXb3Jrc3BhY2UuUmVhZC5BbGwgV29ya3NwYWNlLlJlYWRXcml0ZS5BbGwiLCJzaWduaW5fc3RhdGUiOlsia21zaSJdLCJzdWIiOiJldXpJUjRTY1Y2VmRHTnpRV1R3Slo3Y05MaEpkWWZ2SHVkNFpmMjNwbExJIiwidGlkIjoiMzBiZjlmMzctZDU1MC00ODc4LTk0OTQtMTA0MTY1NmNhZjI3IiwidW5pcXVlX25hbWUiOiJTcmlsZWtoYS5CQHNucC5jb20iLCJ1cG4iOiJTcmlsZWtoYS5CQHNucC5jb20iLCJ1dGkiOiJTODhXeUdoZXowZXdOQ25aZTNVSkFBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXX0.uN38XXxuAMSA9TG7btVz5alLWKDDxl-9ZqhiljI7vZ6P_28uYYs8X6FywzwJRFDiSTKy53AmfOIGHXrrieJRhUc9uGaMvnqNNeI0FlrBVI4MiZqJnR0qKyLeCvcghoKutoQTXk_nrxLWFW8fN4eMfMQJt3hQAUNSrBvQKI7ukuarpTAZDQAPshZ9AirVcdtExSCgX0xXK5hE5XMKTifE3rWhOiRFa41mqg_u-2vbgzsmCnrhL3bSExqFjPBDiHxdOZV5igmnIXx8mde6JVEBNtv4tQt_2NPTQ-0Q2YzIIxa_98MQbRj1JYAoxyi0F4ThI46oM8f4I_9fdEX5y3vlPg"
-			}
-		},
 		"annotations": [],
 		"lastPublishTime": "2022-11-11T10:32:37Z"
 	}
