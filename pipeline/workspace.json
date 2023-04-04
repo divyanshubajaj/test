@@ -36,6 +36,7 @@
 					"authentication": {
 						"type": "ServicePrincipal",
 						"userTenant": "30bf9f37-d550-4878-9494-1041656caf27",
+						"username": "c434c045-a98e-4689-9087-7e2240aa07ba",
 						"password": {
 							"type": "SecureString",
 							"value": "**********"
@@ -144,7 +145,7 @@
 						"Content-Type": "application/x-www-form-urlencoded"
 					},
 					"body": {
-						"value": "grant_type=client_credentials&client_id=85db3560-2d58-4e6c-b350-2da05edd854e&client_secret=y8L8Q~ysn511tphgaHTmTDljwZE7bP3ba9cs7dix&resource=https://analysis.windows.net/powerbi/api",
+						"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
 						"type": "Expression"
 					}
 				}
