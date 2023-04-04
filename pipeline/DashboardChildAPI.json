@@ -90,23 +90,9 @@
 										},
 										"type": "String"
 									},
-									"subscriptions": {
+									"groupid": {
 										"value": {
-											"value": "@item().subscriptions",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"users": {
-										"value": {
-											"value": "@item().users",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"webUrl": {
-										"value": {
-											"value": "@item().webUrl",
+											"value": "@item().groupid",
 											"type": "Expression"
 										},
 										"type": "String"
