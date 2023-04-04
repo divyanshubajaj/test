@@ -32,15 +32,6 @@
 							"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
 							"type": "Expression"
 						}
-					},
-					"authentication": {
-						"type": "ServicePrincipal",
-						"userTenant": "30bf9f37-d550-4878-9494-1041656caf27",
-						"username": "c434c045-a98e-4689-9087-7e2240aa07ba",
-						"password": {
-							"type": "SecureString",
-							"value": "**********"
-						}
 					}
 				}
 			},
