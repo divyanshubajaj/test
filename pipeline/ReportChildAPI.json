@@ -1,0 +1,150 @@
+{
+	"name": "ReportChildAPI",
+	"properties": {
+		"activities": [
+			{
+				"name": "ReportWebAPI",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/reports')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "EachReport",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ReportWebAPI",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@array(activity('ReportWebAPI').output.value)",
+						"type": "Expression"
+					},
+					"batchCount": 10,
+					"activities": [
+						{
+							"name": "Report_Data_Dump",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Report]",
+								"storedProcedureParameters": {
+									"datasetId": {
+										"value": {
+											"value": "@item().datasetId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"embedUrl": {
+										"value": {
+											"value": "@item().embedUrl",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"id": {
+										"value": {
+											"value": "@item().id",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"isOwnedByMe": {
+										"value": {
+											"value": "@item().isOwnedByMe",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"name": {
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"reportType": {
+										"value": {
+											"value": "@item().reportType",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"subscriptions": {
+										"value": {
+											"value": "@item().subscriptions",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"users": {
+										"value": {
+											"value": "@item().users",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"webUrl": {
+										"value": {
+											"value": "@item().webUrl",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"input": {
+				"type": "object"
+			},
+			"Bearer_Token": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-17T10:02:50Z"
+	}
+}

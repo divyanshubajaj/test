@@ -1,0 +1,324 @@
+{
+	"name": "sub-sub-activity",
+	"properties": {
+		"activities": [
+			{
+				"name": "Each_Activity_Dump_Data",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.activityEventEntities",
+						"type": "Expression"
+					},
+					"batchCount": 10,
+					"activities": [
+						{
+							"name": "Activity_Data_Dump",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Activity]",
+								"storedProcedureParameters": {
+									"Activity": {
+										"value": {
+											"value": "@item().Activity",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ActivityId": {
+										"value": {
+											"value": "@item().ActivityId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"AppName": {
+										"value": {
+											"value": "@item().AppName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"AppReportId": {
+										"value": {
+											"value": "@item().AppReportId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"CapacityId": {
+										"value": {
+											"value": "@item().CapacityId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"CapacityName": {
+										"value": {
+											"value": "@item().CapacityName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ClientIP": {
+										"value": {
+											"value": "@item().ClientIP",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ConsumptionMethod": {
+										"value": {
+											"value": "@item().ConsumptionMethod",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"CreationDate": {
+										"value": {
+											"value": "@item().CreationDate",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"CreationTime": {
+										"value": {
+											"value": "@item().CreationTime",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"DashboardId": {
+										"value": {
+											"value": "@item().DashboardId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"DataConnectivityMode": {
+										"value": {
+											"value": "@item().DataConnectivityMode",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"DatasetId": {
+										"value": {
+											"value": "@item().DatasetId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"DatasetName": {
+										"value": {
+											"value": "@item().DatasetName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"DistributionMethod": {
+										"value": {
+											"value": "@item().DistributionMethod",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Id": {
+										"value": {
+											"value": "@item().Id",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ImportDisplayName": {
+										"value": {
+											"value": "@item().ImportDisplayName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ImportId": {
+										"value": {
+											"value": "@item().ImportId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ImportSource": {
+										"value": {
+											"value": "@item().ImportSource",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ImportType": {
+										"value": {
+											"value": "@item().ImportType",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"IsSuccess": {
+										"value": {
+											"value": "@item().IsSuccess",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ItemName": {
+										"value": {
+											"value": "@item().ItemName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"LastRefreshTime": {
+										"value": {
+											"value": "@item().LastRefreshTime",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ObjectId": {
+										"value": {
+											"value": "@item().ObjectId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Operation": {
+										"value": {
+											"value": "@item().Operation",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"OrganizationId": {
+										"value": {
+											"value": "@item().OrganizationId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"RecordType": {
+										"value": {
+											"value": "@item().RecordType",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ReportId": {
+										"value": {
+											"value": "@item().ReportId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ReportName": {
+										"value": {
+											"value": "@item().ReportName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"ReportType": {
+										"value": {
+											"value": "@item().ReportType",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"RequestId": {
+										"value": {
+											"value": "@item().RequestId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"RetrieveDate": {
+										"value": {
+											"value": "@item().RetrieveDate",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"UserAgent": {
+										"value": {
+											"value": "@item().UserAgent",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"UserId": {
+										"value": {
+											"value": "@item().UserId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"UserKey": {
+										"value": {
+											"value": "@item().UserKey",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"UserType": {
+										"value": {
+											"value": "@item().UserType",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Workload": {
+										"value": {
+											"value": "@item().Workload",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"WorkspaceId": {
+										"value": {
+											"value": "@item().WorkspaceId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"WorkSpaceName": {
+										"value": {
+											"value": "@item().WorkSpaceName",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"activityEventEntities": {
+				"type": "array"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-17T15:07:56Z"
+	}
+}

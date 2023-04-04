@@ -1,0 +1,174 @@
+{
+	"name": "sub-activity",
+	"properties": {
+		"activities": [
+			{
+				"name": "CT",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "continuationToken",
+					"value": {
+						"value": "@concat('')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Flag",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Flag",
+					"value": {
+						"value": "@bool(1)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Until_CT_NULL",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Flag",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "CT",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(bool(1),variables('Flag'))",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Activity_Date_Url",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@if(equals(variables('continuationToken'),''),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime=',pipeline().parameters.startDateTime,'&endDateTime=',pipeline().parameters.endDateTime),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?continuationToken=''',variables('continuationToken'),''''))",
+									"type": "Expression"
+								},
+								"method": "GET",
+								"headers": {
+									"Authorization": {
+										"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Execute_Activity_Data_Dump",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Activity_Date_Url",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "sub-sub-activity",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"activityEventEntities": {
+										"value": "@activity('Activity_Date_Url').output.activityEventEntities",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "set_CT",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Activity_Date_Url",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "continuationToken",
+								"value": {
+									"value": "@activity('Activity_Date_Url').output?.continuationToken",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "set_Flag",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Activity_Date_Url",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "Flag",
+								"value": {
+									"value": "@if(equals(coalesce(activity('Activity_Date_Url').output.continuationToken,0),0),bool(0),bool(1))",
+									"type": "Expression"
+								}
+							}
+						}
+					],
+					"timeout": "0.12:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"Bearer_Token": {
+				"type": "string"
+			},
+			"startDateTime": {
+				"type": "string"
+			},
+			"endDateTime": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"continuationToken": {
+				"type": "String"
+			},
+			"Flag": {
+				"type": "Boolean"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-12-01T05:55:27Z"
+	}
+}

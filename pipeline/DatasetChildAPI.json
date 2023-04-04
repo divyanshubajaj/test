@@ -1,0 +1,192 @@
+{
+	"name": "DatasetChildAPI",
+	"properties": {
+		"activities": [
+			{
+				"name": "EachDataset",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "DatasetWebAPI",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@array(activity('DatasetWebAPI').output.value)",
+						"type": "Expression"
+					},
+					"batchCount": 10,
+					"activities": [
+						{
+							"name": "Dataset_Data_Dump",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Dataset]",
+								"storedProcedureParameters": {
+									"addRowsAPIEnabled": {
+										"value": {
+											"value": "@item().addRowsAPIEnabled",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"configuredBy": {
+										"value": {
+											"value": "@item().configuredBy",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"createdDate": {
+										"value": {
+											"value": "@item().createdDate",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									},
+									"createReportEmbedURL": {
+										"value": {
+											"value": "@item().createReportEmbedURL",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"id": {
+										"value": {
+											"value": "@item().id",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"isEffectiveIdentityRequired": {
+										"value": {
+											"value": "@item().isEffectiveIdentityRequired",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"isEffectiveIdentityRolesRequired": {
+										"value": {
+											"value": "@item().isEffectiveIdentityRolesRequired",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"isOnPremGatewayRequired": {
+										"value": {
+											"value": "@item().isOnPremGatewayRequired",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"isRefreshable": {
+										"value": {
+											"value": "@item().isRefreshable",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"name": {
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"qnaEmbedURL": {
+										"value": {
+											"value": "@item().qnaEmbedURL",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"targetStorageMode": {
+										"value": {
+											"value": "@item().targetStorageMode",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"upstreamDatasets": {
+										"value": {
+											"value": "@item().upstreamDatasets",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"users": {
+										"value": {
+											"value": "@item().users",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"webUrl": {
+										"value": {
+											"value": "@item().webUrl",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "DatasetWebAPI",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/datasets')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"input": {
+				"type": "object"
+			},
+			"Bearer_Token": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-17T10:02:50Z"
+	}
+}

@@ -1,0 +1,125 @@
+{
+	"name": "activity",
+	"properties": {
+		"activities": [
+			{
+				"name": "StartDate",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "StartDate",
+					"value": {
+						"value": "@formatDateTime(adddays(utcnow(),pipeline().parameters.Day),'yyyy-MM-dd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "EndDate",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "EndDate",
+					"value": {
+						"value": "@formatDateTime(adddays(utcnow(),pipeline().parameters.Day),'yyyy-MM-dd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Get Access Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "StartDate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "EndDate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "sub-activity",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Bearer_Token": {
+							"value": "@activity('Get Access Token').access_token.value",
+							"type": "Expression"
+						},
+						"startDateTime": {
+							"value": "@concat('''',variables('StartDate'),'T00%3A00%3A00.000Z','''')",
+							"type": "Expression"
+						},
+						"endDateTime": {
+							"value": "@concat('''',variables('EndDate'),'2022-11-30T23%3A59%3A59%3A000Z','''')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Get Access Token",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "grant_type=client_credentials&client_id=5ff6eba2-c57c-4b25-a963-7383a8adc0e2&client_secret=X7d8Q~kh~4BYuKOEPrJsPS4-cv6sLKT0Un2klbqJ&resource=https://analysis.windows.net/powerbi/api\n",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Bearer_Token": {
+				"type": "string"
+			},
+			"Day": {
+				"type": "int",
+				"defaultValue": -20
+			}
+		},
+		"variables": {
+			"StartDate": {
+				"type": "String"
+			},
+			"EndDate": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-12-01T06:27:53Z"
+	}
+}
