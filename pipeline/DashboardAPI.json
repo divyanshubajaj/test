@@ -5,7 +5,14 @@
 			{
 				"name": "WorkspaceWebAPI",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Get Access Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -22,7 +29,7 @@
 					"method": "GET",
 					"headers": {
 						"Authorization": {
-							"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+							"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
 							"type": "Expression"
 						}
 					}
@@ -61,7 +68,7 @@
 								"waitOnCompletion": true,
 								"parameters": {
 									"Bearer_Token": {
-										"value": "@pipeline().parameters.Bearer_Token",
+										"value": "@activity('Get Access Token').output.access_token",
 										"type": "Expression"
 									},
 									"input": {
@@ -73,14 +80,35 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Get Access Token",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+						"type": "Expression"
+					}
+				}
 			}
 		],
-		"parameters": {
-			"Bearer_Token": {
-				"type": "string",
-				"defaultValue": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSIsImtpZCI6IjJaUXBKM1VwYmpBWVhZR2FYRUpsOGxWMFRPSSJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvMzBiZjlmMzctZDU1MC00ODc4LTk0OTQtMTA0MTY1NmNhZjI3LyIsImlhdCI6MTY2ODE2OTU4NywibmJmIjoxNjY4MTY5NTg3LCJleHAiOjE2NjgxNzM2ODgsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVlFBcS84VEFBQUFBbE5na0ZnMExtc0ZkeGdNdGxsT3A3c2VpYzM1SjcxcWI2Y3h3VUQ2MVI2YzhwQ2g2eTM5a1YxY0xtQjlPTENxejRIQnRaRGVsaTRUU2t5NVVYUkhTY2xHeldCbHgyaWpjQlM3Sjk1Zlk5az0iLCJhbXIiOlsicHdkIiwibWZhIl0sImFwcGlkIjoiMThmYmNhMTYtMjIyNC00NWY2LTg1YjAtZjdiZjJiMzliM2YzIiwiYXBwaWRhY3IiOiIwIiwiZmFtaWx5X25hbWUiOiJCYW5kbGFtdWRpIiwiZ2l2ZW5fbmFtZSI6IlNyaWxla2hhIiwiaXBhZGRyIjoiMTgzLjgyLjExOS4yNiIsIm5hbWUiOiJTcmlsZWtoYSBCYW5kbGFtdWRpIiwib2lkIjoiYzg5NWMwZWUtNjA4Zi00MTliLThkYTItNTE1NjA5ZDA1OWU0IiwicHVpZCI6IjEwMDMyMDAyMDI3OUZEQUEiLCJyaCI6IjAuQVVZQU41LV9NRkRWZUVpVWxCQkJaV3l2SndrQUFBQUFBQUFBd0FBQUFBQUFBQUJHQUNZLiIsInNjcCI6IkFwcC5SZWFkLkFsbCBDYXBhY2l0eS5SZWFkLkFsbCBDYXBhY2l0eS5SZWFkV3JpdGUuQWxsIENvbnRlbnQuQ3JlYXRlIERhc2hib2FyZC5SZWFkLkFsbCBEYXNoYm9hcmQuUmVhZFdyaXRlLkFsbCBEYXRhZmxvdy5SZWFkLkFsbCBEYXRhZmxvdy5SZWFkV3JpdGUuQWxsIERhdGFzZXQuUmVhZC5BbGwgRGF0YXNldC5SZWFkV3JpdGUuQWxsIEdhdGV3YXkuUmVhZC5BbGwgR2F0ZXdheS5SZWFkV3JpdGUuQWxsIFBpcGVsaW5lLkRlcGxveSBQaXBlbGluZS5SZWFkLkFsbCBQaXBlbGluZS5SZWFkV3JpdGUuQWxsIFJlcG9ydC5SZWFkLkFsbCBSZXBvcnQuUmVhZFdyaXRlLkFsbCBTdG9yYWdlQWNjb3VudC5SZWFkLkFsbCBTdG9yYWdlQWNjb3VudC5SZWFkV3JpdGUuQWxsIFRlbmFudC5SZWFkLkFsbCBUZW5hbnQuUmVhZFdyaXRlLkFsbCBVc2VyU3RhdGUuUmVhZFdyaXRlLkFsbCBXb3Jrc3BhY2UuUmVhZC5BbGwgV29ya3NwYWNlLlJlYWRXcml0ZS5BbGwiLCJzaWduaW5fc3RhdGUiOlsia21zaSJdLCJzdWIiOiJldXpJUjRTY1Y2VmRHTnpRV1R3Slo3Y05MaEpkWWZ2SHVkNFpmMjNwbExJIiwidGlkIjoiMzBiZjlmMzctZDU1MC00ODc4LTk0OTQtMTA0MTY1NmNhZjI3IiwidW5pcXVlX25hbWUiOiJTcmlsZWtoYS5CQHNucC5jb20iLCJ1cG4iOiJTcmlsZWtoYS5CQHNucC5jb20iLCJ1dGkiOiJBUVIyd2dhRmMweWdoekF0bjdZS0FBIiwidmVyIjoiMS4wIiwid2lkcyI6WyJiNzlmYmY0ZC0zZWY5LTQ2ODktODE0My03NmIxOTRlODU1MDkiXX0.h2j6EeRHJB_L0d2w5dspVs3wSMZUP3qcyLP4iJ5iT9Kkr8qwnjyriZLX1MT18AJ2N5l4g0uRjBdYOn0C2iX8XMHtguvx8OZVXpbUIuBq_83cHAhv0h6V237_6X5MaN_tp1nV221LN-R0_DJJjTBlc3bm6VQa1eY7H5l_7B5nTgGHIdLbd1wrAyHmhcbYqPUbwCOnVdVO2g39xbajhfBhTxusA0VYEqicUiz57g-oF-JvNz2I3tRuJ4SajXLnb2onx29TKxlJs3TfWcHBCOLwAQaS2QYs79oIwV-MQ4LCHK8iKR8bP_8CXLE4bcyMWJ85GHgXPtQeJC4gw7w-f3bvyA"
-			}
-		},
 		"annotations": [],
 		"lastPublishTime": "2022-11-14T08:42:53Z"
 	}
