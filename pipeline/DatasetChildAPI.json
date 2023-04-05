@@ -180,7 +180,7 @@
 		],
 		"parameters": {
 			"input": {
-				"type": "string"
+				"type": "object"
 			},
 			"Bearer_Token": {
 				"type": "string"
