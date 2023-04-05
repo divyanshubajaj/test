@@ -165,7 +165,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/datasets')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input,'/datasets')",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -180,7 +180,7 @@
 		],
 		"parameters": {
 			"input": {
-				"type": "object"
+				"type": "string"
 			},
 			"Bearer_Token": {
 				"type": "string"
