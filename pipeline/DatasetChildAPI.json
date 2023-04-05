@@ -165,7 +165,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/',pipeline().parameters.input.id,'/datasets')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/datasets')",
 						"type": "Expression"
 					},
 					"method": "GET",
