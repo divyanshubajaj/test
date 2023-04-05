@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/',pipeline().parameters.input.id,'/reports')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/reports')",
 						"type": "Expression"
 					},
 					"method": "GET",

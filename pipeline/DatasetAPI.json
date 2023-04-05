@@ -68,7 +68,7 @@
 								"waitOnCompletion": true,
 								"parameters": {
 									"input": {
-										"value": "@item().id",
+										"value": "@item()",
 										"type": "Expression"
 									},
 									"Bearer_Token": {

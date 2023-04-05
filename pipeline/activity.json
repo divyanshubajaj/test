@@ -60,7 +60,7 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"Bearer_Token": {
-							"value": "@activity('Get Access Token').access_token.value",
+							"value": "@activity('Get Access Token').output.access_token",
 							"type": "Expression"
 						},
 						"startDateTime": {
@@ -96,7 +96,7 @@
 						"Content-Type": "application/x-www-form-urlencoded"
 					},
 					"body": {
-						"value": "grant_type=client_credentials&client_id=5ff6eba2-c57c-4b25-a963-7383a8adc0e2&client_secret=X7d8Q~kh~4BYuKOEPrJsPS4-cv6sLKT0Un2klbqJ&resource=https://analysis.windows.net/powerbi/api\n",
+						"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
 						"type": "Expression"
 					}
 				}
