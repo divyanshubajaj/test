@@ -36,6 +36,27 @@
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[Dataset]",
 								"storedProcedureParameters": {
+									"id": {
+										"value": {
+											"value": "@item().id",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"name": {
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"webUrl": {
+										"value": {
+											"value": "@item().webUrl",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"addRowsAPIEnabled": {
 										"value": {
 											"value": "@item().addRowsAPIEnabled",
@@ -50,23 +71,9 @@
 										},
 										"type": "String"
 									},
-									"createdDate": {
+									"isRefreshable": {
 										"value": {
-											"value": "@item().createdDate",
-											"type": "Expression"
-										},
-										"type": "DateTime"
-									},
-									"createReportEmbedURL": {
-										"value": {
-											"value": "@item().createReportEmbedURL",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"id": {
-										"value": {
-											"value": "@item().id",
+											"value": "@item().isRefreshable",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -92,51 +99,9 @@
 										},
 										"type": "String"
 									},
-									"isRefreshable": {
-										"value": {
-											"value": "@item().isRefreshable",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"name": {
-										"value": {
-											"value": "@item().name",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"qnaEmbedURL": {
-										"value": {
-											"value": "@item().qnaEmbedURL",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
 									"targetStorageMode": {
 										"value": {
 											"value": "@item().targetStorageMode",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"upstreamDatasets": {
-										"value": {
-											"value": "@item().upstreamDatasets",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"users": {
-										"value": {
-											"value": "@item().users",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"webUrl": {
-										"value": {
-											"value": "@item().webUrl",
 											"type": "Expression"
 										},
 										"type": "String"
