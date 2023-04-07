@@ -89,13 +89,6 @@
 											"type": "Expression"
 										},
 										"type": "String"
-									},
-									"users": {
-										"value": {
-											"value": "@item().users",
-											"type": "Expression"
-										},
-										"type": "String"
 									}
 								}
 							},
