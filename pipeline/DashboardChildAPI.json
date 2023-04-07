@@ -90,16 +90,9 @@
 										},
 										"type": "String"
 									},
-									"users": {
+									"webUrl": {
 										"value": {
-											"value": "@item().users",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"subscriptions": {
-										"value": {
-											"value": "@item().subscriptions",
+											"value": "@item().webUrl",
 											"type": "Expression"
 										},
 										"type": "String"
