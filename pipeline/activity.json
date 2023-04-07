@@ -64,11 +64,11 @@
 							"type": "Expression"
 						},
 						"startDateTime": {
-							"value": "@variables('StartDate')",
+							"value": "@concat('''',variables('StartDate'),'T00:00:00.000Z','''')",
 							"type": "Expression"
 						},
 						"endDateTime": {
-							"value": "@variables('EndDate')",
+							"value": "@concat('''',variables('EndDate'),'T23:59:59.000','''')",
 							"type": "Expression"
 						}
 					}
