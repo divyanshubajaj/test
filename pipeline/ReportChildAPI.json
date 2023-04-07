@@ -103,6 +103,13 @@
 											"type": "Expression"
 										},
 										"type": "String"
+									},
+									"groupId": {
+										"value": {
+											"value": "@item().groupId",
+											"type": "Expression"
+										},
+										"type": "String"
 									}
 								}
 							},
