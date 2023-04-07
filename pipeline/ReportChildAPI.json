@@ -60,7 +60,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[dbo].[Report]",
+								"storedProcedureName": "[dbo].[Reports]",
 								"storedProcedureParameters": {
 									"datasetId": {
 										"value": {
