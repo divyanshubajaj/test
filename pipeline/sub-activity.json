@@ -66,7 +66,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"url": {
-									"value": "@if(equals(variables('continuationToken'),''),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime=',pipeline().parameters.startDateTime,'&endDateTime=',pipeline().parameters.endDateTime),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?continuationToken=''',variables('continuationToken'),''''))",
+									"value": "@if(equals(variables('continuationToken'),''),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime=\"',pipeline().parameters.startDateTime,'\"&endDateTime=\"',pipeline().parameters.endDateTime,'\"'),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?continuationToken=''',variables('continuationToken'),''''))",
 									"type": "Expression"
 								},
 								"method": "GET",
