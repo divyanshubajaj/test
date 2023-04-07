@@ -34,7 +34,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[dbo].[Dataset]",
+								"storedProcedureName": "[dbo].[Datasets]",
 								"storedProcedureParameters": {
 									"addRowsAPIEnabled": {
 										"value": {
