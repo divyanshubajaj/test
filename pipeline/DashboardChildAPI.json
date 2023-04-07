@@ -48,7 +48,7 @@
 					"batchCount": 10,
 					"activities": [
 						{
-							"name": "Dashboard_Data_Dump",
+							"name": "Stored procedure1",
 							"type": "SqlServerStoredProcedure",
 							"dependsOn": [],
 							"policy": {
@@ -62,20 +62,6 @@
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[Dashboards]",
 								"storedProcedureParameters": {
-									"displayName": {
-										"value": {
-											"value": "@item().displayName",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"embedUrl": {
-										"value": {
-											"value": "@item().embedUrl",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
 									"id": {
 										"value": {
 											"value": "@item().id",
@@ -83,9 +69,23 @@
 										},
 										"type": "String"
 									},
+									"displayName": {
+										"value": {
+											"value": "@item().displayName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"isReadOnly": {
 										"value": {
 											"value": "@item().isReadOnly",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"embedUrl": {
+										"value": {
+											"value": "@item().embedUrl",
 											"type": "Expression"
 										},
 										"type": "String"
