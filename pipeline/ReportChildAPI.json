@@ -62,9 +62,9 @@
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[Reports]",
 								"storedProcedureParameters": {
-									"datasetId": {
+									"datasetWorkspaceId": {
 										"value": {
-											"value": "@item().datasetId",
+											"value": "@item().datasetWorkspaceId",
 											"type": "Expression"
 										},
 										"type": "String"
@@ -83,13 +83,6 @@
 										},
 										"type": "String"
 									},
-									"isOwnedByMe": {
-										"value": {
-											"value": "@item().isOwnedByMe",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
 									"name": {
 										"value": {
 											"value": "@item().name",
@@ -100,20 +93,6 @@
 									"reportType": {
 										"value": {
 											"value": "@item().reportType",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"subscriptions": {
-										"value": {
-											"value": "@item().subscriptions",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
-									"users": {
-										"value": {
-											"value": "@item().users",
 											"type": "Expression"
 										},
 										"type": "String"
