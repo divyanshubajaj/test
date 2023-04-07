@@ -108,7 +108,7 @@
 			},
 			"Day": {
 				"type": "int",
-				"defaultValue": -20
+				"defaultValue": -1
 			}
 		},
 		"variables": {
