@@ -64,7 +64,7 @@
 							"type": "Expression"
 						},
 						"startDateTime": {
-							"value": "@concat('\\',variables('StartDate'),'\\')",
+							"value": "@variables('StartDate')",
 							"type": "Expression"
 						},
 						"endDateTime": {
