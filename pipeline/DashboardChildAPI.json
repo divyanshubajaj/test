@@ -96,6 +96,13 @@
 											"type": "Expression"
 										},
 										"type": "String"
+									},
+									"groupId": {
+										"value": {
+											"value": "@pipeline().parameters.input.id",
+											"type": "Expression"
+										},
+										"type": "String"
 									}
 								}
 							},
