@@ -64,13 +64,6 @@
 										},
 										"type": "String"
 									},
-									"configuredBy": {
-										"value": {
-											"value": "@item().configuredBy",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
 									"isRefreshable": {
 										"value": {
 											"value": "@item().isRefreshable",
