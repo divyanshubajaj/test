@@ -1,0 +1,69 @@
+{
+	"name": "admin workspace",
+	"properties": {
+		"activities": [
+			{
+				"name": "WorkspaceWebAPI",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get Access Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?$top=1000')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Get Access Token",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2022-11-17T10:02:50Z"
+	}
+}
