@@ -23,7 +23,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?&$top=1000')",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -233,86 +233,8 @@
 						"type": "Expression"
 					}
 				}
-			},
-			{
-				"name": "StartDate",
-				"type": "SetVariable",
-				"dependsOn": [],
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "StartDate",
-					"value": {
-						"value": "@formatDateTime(adddays(utcnow(),pipeline().parameters.Day),'yyyy-MM-dd')",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "EndDate",
-				"type": "SetVariable",
-				"dependsOn": [],
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "EndDate",
-					"value": {
-						"value": "@formatDateTime(adddays(utcnow(),pipeline().parameters.Day),'yyyy-MM-dd')",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "Execute sub-activity",
-				"type": "ExecutePipeline",
-				"dependsOn": [
-					{
-						"activity": "Get Access Token",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "StartDate",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "EndDate",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"pipeline": {
-						"referenceName": "sub-activity",
-						"type": "PipelineReference"
-					},
-					"waitOnCompletion": true,
-					"parameters": {
-						"Bearer_Token": {
-							"value": "@activity('Get Access Token').output.access_token",
-							"type": "Expression"
-						},
-						"startDateTime": {
-							"value": "@concat('''',variables('StartDate'),'T00:00:00.000Z','''')",
-							"type": "Expression"
-						},
-						"endDateTime": {
-							"value": "@concat('''',variables('EndDate'),'T23:59:59.000','''')",
-							"type": "Expression"
-						}
-					}
-				}
 			}
 		],
-		"parameters": {
-			"Day": {
-				"type": "int",
-				"defaultValue": -1
-			}
-		},
 		"variables": {
 			"StartDate": {
 				"type": "String"

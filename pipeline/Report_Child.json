@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/reports')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/reports')\n\n",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -62,13 +62,6 @@
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[Reports]",
 								"storedProcedureParameters": {
-									"datasetWorkspaceId": {
-										"value": {
-											"value": "@item().datasetWorkspaceId",
-											"type": "Expression"
-										},
-										"type": "String"
-									},
 									"embedUrl": {
 										"value": {
 											"value": "@item().embedUrl",
