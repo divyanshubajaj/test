@@ -110,6 +110,13 @@
 											"type": "Expression"
 										},
 										"type": "String"
+									},
+									"datasetId": {
+										"value": {
+											"value": "@item().datasetId",
+											"type": "Expression"
+										},
+										"type": "String"
 									}
 								}
 							},
