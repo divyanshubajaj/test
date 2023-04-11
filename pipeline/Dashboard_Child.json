@@ -1,0 +1,132 @@
+{
+	"name": "Dashboard_Child",
+	"properties": {
+		"activities": [
+			{
+				"name": "DashboardWebAPI",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/dashboards')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "EachDashboard",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "DashboardWebAPI",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@array(activity('DashboardWebAPI').output.value)",
+						"type": "Expression"
+					},
+					"batchCount": 10,
+					"activities": [
+						{
+							"name": "Stored procedure1",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Dashboards]",
+								"storedProcedureParameters": {
+									"id": {
+										"value": {
+											"value": "@item().id",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"displayName": {
+										"value": {
+											"value": "@item().displayName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"isReadOnly": {
+										"value": {
+											"value": "@item().isReadOnly",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"embedUrl": {
+										"value": {
+											"value": "@item().embedUrl",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"webUrl": {
+										"value": {
+											"value": "@item().webUrl",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"groupId": {
+										"value": {
+											"value": "@pipeline().parameters.input.id",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"Bearer_Token": {
+				"type": "string"
+			},
+			"input": {
+				"type": "object"
+			}
+		},
+		"folder": {
+			"name": "new"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-17T10:02:50Z"
+	}
+}

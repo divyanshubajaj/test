@@ -1,0 +1,125 @@
+{
+	"name": "Dataflow_Child",
+	"properties": {
+		"activities": [
+			{
+				"name": "DataFlowWebAPI",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/dataflows')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "EachDataflow",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "DataFlowWebAPI",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@array(activity('DataFlowWebAPI').output.value)",
+						"type": "Expression"
+					},
+					"batchCount": 10,
+					"activities": [
+						{
+							"name": "Dataflow_Data_Dump",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[Dataflow]",
+								"storedProcedureParameters": {
+									"configuredBy": {
+										"value": {
+											"value": "@item().configuredBy",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"description": {
+										"value": {
+											"value": "@item().description",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"name": {
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"objectId": {
+										"value": {
+											"value": "@item().objectId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"groupId": {
+										"value": {
+											"value": "@pipeline().parameters.input.id",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "LS_SQL",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"input": {
+				"type": "object"
+			},
+			"Bearer_Token": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "new"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-11-17T10:02:50Z"
+	}
+}
