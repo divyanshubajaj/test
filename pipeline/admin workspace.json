@@ -23,7 +23,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?$top=1000')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?$top=5000')",
 						"type": "Expression"
 					},
 					"method": "GET",
