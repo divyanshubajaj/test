@@ -35,6 +35,17 @@
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
+								"ifFalseActivities": [
+									{
+										"name": "Execute Pipeline1",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"waitOnCompletion": true
+										}
+									}
+								],
 								"ifTrueActivities": [
 									{
 										"name": "Web1",
