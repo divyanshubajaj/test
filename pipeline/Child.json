@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "Lookup_API",
+				"description": "test",
 				"type": "Lookup",
 				"dependsOn": [],
 				"policy": {
