@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/reports')\n\n",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/reports')",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -62,6 +62,13 @@
 							"typeProperties": {
 								"storedProcedureName": "[dbo].[Reports]",
 								"storedProcedureParameters": {
+									"datasetWorkspaceId": {
+										"value": {
+											"value": "@item().datasetWorkspaceId",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"embedUrl": {
 										"value": {
 											"value": "@item().embedUrl",
@@ -134,6 +141,7 @@
 			"name": "new"
 		},
 		"annotations": [],
-		"lastPublishTime": "2022-11-17T10:02:50Z"
-	}
+		"lastPublishTime": "2023-04-11T12:31:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

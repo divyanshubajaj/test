@@ -69,6 +69,8 @@
 				"defaultValue": "c535993f-b580-4b9b-911d-a12a40dc3ae5"
 			}
 		},
-		"annotations": []
-	}
+		"annotations": [],
+		"lastPublishTime": "2023-04-11T12:31:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

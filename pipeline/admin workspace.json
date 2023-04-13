@@ -23,7 +23,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?$top=5000')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?$top=1000')",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -64,6 +64,7 @@
 			}
 		],
 		"annotations": [],
-		"lastPublishTime": "2022-11-17T10:02:50Z"
-	}
+		"lastPublishTime": "2023-04-11T12:31:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

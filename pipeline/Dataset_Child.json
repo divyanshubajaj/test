@@ -64,6 +64,13 @@
 										},
 										"type": "String"
 									},
+									"configuredBy": {
+										"value": {
+											"value": "@item().configuredBy",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
 									"isRefreshable": {
 										"value": {
 											"value": "@item().isRefreshable",
@@ -130,7 +137,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/datasets')\n",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/datasets')",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -155,6 +162,7 @@
 			"name": "new"
 		},
 		"annotations": [],
-		"lastPublishTime": "2022-11-17T10:02:50Z"
-	}
+		"lastPublishTime": "2023-04-11T12:31:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

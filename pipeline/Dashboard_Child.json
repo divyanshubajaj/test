@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"url": {
-						"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/dashboards')",
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/dashboards')",
 						"type": "Expression"
 					},
 					"method": "GET",
@@ -127,6 +127,7 @@
 			"name": "new"
 		},
 		"annotations": [],
-		"lastPublishTime": "2022-11-17T10:02:50Z"
-	}
+		"lastPublishTime": "2023-04-11T12:31:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }
