@@ -1,0 +1,2835 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "bajajDF"
+		},
+		"LS_SQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_SQL'"
+		},
+		"LS_SQL_DB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_SQL_DB'"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/admin dashboard')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "DashboardWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.groupid,'/dashboards')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"groupid": {
+						"type": "string",
+						"defaultValue": "c535993f-b580-4b9b-911d-a12a40dc3ae5"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-11T12:31:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/admin workspace')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?$top=1000')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-11T12:31:26Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AmazonRdsForSqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_SQL_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQL_DB')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_SQL_DB_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DashboardChildAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DashboardWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups/',pipeline().parameters.input.id,'/dashboards')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachDashboard",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DashboardWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DashboardWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Stored procedure1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dashboards]",
+										"storedProcedureParameters": {
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"displayName": {
+												"value": {
+													"value": "@item().displayName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isReadOnly": {
+												"value": {
+													"value": "@item().isReadOnly",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"embedUrl": {
+												"value": {
+													"value": "@item().embedUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"Bearer_Token": {
+						"type": "string"
+					},
+					"input": {
+						"type": "object"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T10:02:50Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dashboard_Child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DashboardWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/dashboards')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachDashboard",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DashboardWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DashboardWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Stored procedure1",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dashboards]",
+										"storedProcedureParameters": {
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"displayName": {
+												"value": {
+													"value": "@item().displayName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isReadOnly": {
+												"value": {
+													"value": "@item().isReadOnly",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"embedUrl": {
+												"value": {
+													"value": "@item().embedUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"Bearer_Token": {
+						"type": "string"
+					},
+					"input": {
+						"type": "object"
+					}
+				},
+				"folder": {
+					"name": "new"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-11T12:31:26Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataflowChildAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DataFlowWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/dataflows')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachDataflow",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DataFlowWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DataFlowWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Dataflow_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dataflow]",
+										"storedProcedureParameters": {
+											"configuredBy": {
+												"value": {
+													"value": "@item().configuredBy",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"description": {
+												"value": {
+													"value": "@item().description",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"objectId": {
+												"value": {
+													"value": "@item().objectId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T10:02:50Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dataflow_Child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DataFlowWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/dataflows')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachDataflow",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DataFlowWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DataFlowWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Dataflow_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dataflow]",
+										"storedProcedureParameters": {
+											"configuredBy": {
+												"value": {
+													"value": "@item().configuredBy",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"description": {
+												"value": {
+													"value": "@item().description",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"objectId": {
+												"value": {
+													"value": "@item().objectId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "new"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-11T12:31:26Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DatasetChildAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EachDataset",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DatasetWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DatasetWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Dataset_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dataset]",
+										"storedProcedureParameters": {
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"addRowsAPIEnabled": {
+												"value": {
+													"value": "@item().addRowsAPIEnabled",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"configuredBy": {
+												"value": {
+													"value": "@item().configuredBy",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isRefreshable": {
+												"value": {
+													"value": "@item().isRefreshable",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isEffectiveIdentityRequired": {
+												"value": {
+													"value": "@item().isEffectiveIdentityRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isEffectiveIdentityRolesRequired": {
+												"value": {
+													"value": "@item().isEffectiveIdentityRolesRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isOnPremGatewayRequired": {
+												"value": {
+													"value": "@item().isOnPremGatewayRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"targetStorageMode": {
+												"value": {
+													"value": "@item().targetStorageMode",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "DatasetWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/datasets')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T10:02:50Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dataset_Child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EachDataset",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "DatasetWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('DatasetWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Dataset_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Dataset]",
+										"storedProcedureParameters": {
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"addRowsAPIEnabled": {
+												"value": {
+													"value": "@item().addRowsAPIEnabled",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"configuredBy": {
+												"value": {
+													"value": "@item().configuredBy",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isRefreshable": {
+												"value": {
+													"value": "@item().isRefreshable",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isEffectiveIdentityRequired": {
+												"value": {
+													"value": "@item().isEffectiveIdentityRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isEffectiveIdentityRolesRequired": {
+												"value": {
+													"value": "@item().isEffectiveIdentityRolesRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isOnPremGatewayRequired": {
+												"value": {
+													"value": "@item().isOnPremGatewayRequired",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"targetStorageMode": {
+												"value": {
+													"value": "@item().targetStorageMode",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "DatasetWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/datasets')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "new"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-11T12:31:26Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ReportChildAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ReportWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/reports')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachReport",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "ReportWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('ReportWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Report_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Reports]",
+										"storedProcedureParameters": {
+											"datasetWorkspaceId": {
+												"value": {
+													"value": "@item().datasetWorkspaceId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"embedUrl": {
+												"value": {
+													"value": "@item().embedUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"reportType": {
+												"value": {
+													"value": "@item().reportType",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"datasetId": {
+												"value": {
+													"value": "@item().datasetId",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T10:02:50Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Report_Child')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ReportWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.input.id,'/reports')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachReport",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "ReportWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('ReportWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Report_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Reports]",
+										"storedProcedureParameters": {
+											"datasetWorkspaceId": {
+												"value": {
+													"value": "@item().datasetWorkspaceId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"embedUrl": {
+												"value": {
+													"value": "@item().embedUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"reportType": {
+												"value": {
+													"value": "@item().reportType",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"webUrl": {
+												"value": {
+													"value": "@item().webUrl",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"groupId": {
+												"value": {
+													"value": "@pipeline().parameters.input.id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"datasetId": {
+												"value": {
+													"value": "@item().datasetId",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"input": {
+						"type": "object"
+					},
+					"Bearer_Token": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "new"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-04-11T12:31:26Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sub-sub-activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Each_Activity_Dump_Data",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.activityEventEntities",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Activity_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Activity]",
+										"storedProcedureParameters": {
+											"Activity": {
+												"value": {
+													"value": "@item().Activity",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ActivityId": {
+												"value": {
+													"value": "@item().ActivityId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"AppName": {
+												"value": {
+													"value": "@item().AppName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"AppReportId": {
+												"value": {
+													"value": "@item().AppReportId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"CapacityId": {
+												"value": {
+													"value": "@item().CapacityId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"CapacityName": {
+												"value": {
+													"value": "@item().CapacityName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ClientIP": {
+												"value": {
+													"value": "@item().ClientIP",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ConsumptionMethod": {
+												"value": {
+													"value": "@item().ConsumptionMethod",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"CreationTime": {
+												"value": {
+													"value": "@item().CreationTime",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"DashboardId": {
+												"value": {
+													"value": "@item().DashboardId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"DataConnectivityMode": {
+												"value": {
+													"value": "@item().DataConnectivityMode",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"DatasetId": {
+												"value": {
+													"value": "@item().DatasetId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"DatasetName": {
+												"value": {
+													"value": "@item().DatasetName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"DistributionMethod": {
+												"value": {
+													"value": "@item().DistributionMethod",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Id": {
+												"value": {
+													"value": "@item().Id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ImportDisplayName": {
+												"value": {
+													"value": "@item().ImportDisplayName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ImportId": {
+												"value": {
+													"value": "@item().ImportId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ImportSource": {
+												"value": {
+													"value": "@item().ImportSource",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ImportType": {
+												"value": {
+													"value": "@item().ImportType",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"IsSuccess": {
+												"value": {
+													"value": "@item().IsSuccess",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ItemName": {
+												"value": {
+													"value": "@item().ItemName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"LastRefreshTime": {
+												"value": {
+													"value": "@item().LastRefreshTime",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ObjectId": {
+												"value": {
+													"value": "@item().ObjectId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Operation": {
+												"value": {
+													"value": "@item().Operation",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"OrganizationId": {
+												"value": {
+													"value": "@item().OrganizationId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"RecordType": {
+												"value": {
+													"value": "@item().RecordType",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ReportId": {
+												"value": {
+													"value": "@item().ReportId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ReportName": {
+												"value": {
+													"value": "@item().ReportName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"ReportType": {
+												"value": {
+													"value": "@item().ReportType",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"RequestId": {
+												"value": {
+													"value": "@item().RequestId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"RetrieveDate": {
+												"value": {
+													"value": "@item().RetrieveDate",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"UserAgent": {
+												"value": {
+													"value": "@item().UserAgent",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"UserId": {
+												"value": {
+													"value": "@item().UserId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"UserKey": {
+												"value": {
+													"value": "@item().UserKey",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"UserType": {
+												"value": {
+													"value": "@item().UserType",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Workload": {
+												"value": {
+													"value": "@item().Workload",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"WorkspaceId": {
+												"value": {
+													"value": "@item().WorkspaceId",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"WorkSpaceName": {
+												"value": {
+													"value": "@item().WorkSpaceName",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"activityEventEntities": {
+						"type": "array"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T15:07:56Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/workspace')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Workspace_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Workspaces2]",
+										"storedProcedureParameters": {
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isOnDedicatedCapacity": {
+												"value": {
+													"value": "@item().isOnDedicatedCapacity",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isReadOnly": {
+												"value": {
+													"value": "@item().isReadOnly",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"type": {
+												"value": {
+													"value": "@item().type",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-17T10:02:50Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DashboardAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?&$top=1000')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Execute_DashboardChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "DashboardChildAPI",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											},
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-14T08:42:53Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/DashboardChildAPI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DataflowAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Execute_DataflowChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "DataflowChildAPI",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-09T12:42:14Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/DataflowChildAPI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DatasetAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Execute_DatasetChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "DatasetChildAPI",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-11T10:32:37Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/DatasetChildAPI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/admin/groups?&$top=1000')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Execute_DashboardChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Dashboard_Child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											},
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Execute_DataflowChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Dataflow_Child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Execute_DatasetChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Dataset_Child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Execute_ReportChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "Report_Child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Workspace_Data_Dump",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[Workspaces2]",
+										"storedProcedureParameters": {
+											"id": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isOnDedicatedCapacity": {
+												"value": {
+													"value": "@item().isOnDedicatedCapacity",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"isReadOnly": {
+												"value": {
+													"value": "@item().isReadOnly",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"name": {
+												"value": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"type": {
+												"value": {
+													"value": "@item().type",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "LS_SQL",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"StartDate": {
+						"type": "String"
+					},
+					"EndDate": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "new"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-14T08:42:53Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/Dashboard_Child')]",
+				"[concat(variables('factoryId'), '/pipelines/Dataflow_Child')]",
+				"[concat(variables('factoryId'), '/pipelines/Dataset_Child')]",
+				"[concat(variables('factoryId'), '/pipelines/Report_Child')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ReportAPI')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "EachWorkspace",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "WorkspaceWebAPI",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@array(activity('WorkspaceWebAPI').output.value)",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Execute_ReportChildAPI",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "ReportChildAPI",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"input": {
+												"value": "@item()",
+												"type": "Expression"
+											},
+											"Bearer_Token": {
+												"value": "@activity('Get Access Token').output.access_token",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "WorkspaceWebAPI",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get Access Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ',activity('Get Access Token').output.access_token)",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Get Access Token",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://login.microsoftonline.com/30bf9f37-d550-4878-9494-1041656caf27/oauth2/token",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "grant_type=client_credentials&client_id=c434c045-a98e-4689-9087-7e2240aa07ba&client_secret=FSL8Q~9FiYQUfTLHwgmgAU_fpRU2U.Awc8WZUbC2&resource=https://analysis.windows.net/powerbi/api",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-08T16:32:16Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ReportChildAPI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sub-activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CT",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "continuationToken",
+							"value": {
+								"value": "@concat('')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Flag",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "Flag",
+							"value": {
+								"value": "@bool(1)",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Until_CT_NULL",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "Flag",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "CT",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(bool(1),variables('Flag'))",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Activity_Date_Url",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "@if(equals(variables('continuationToken'),''),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?startDateTime=',pipeline().parameters.startDateTime,'&endDateTime=',pipeline().parameters.endDateTime),concat('https://api.powerbi.com/v1.0/myorg/admin/activityevents?continuationToken=''',variables('continuationToken'),''''))",
+											"type": "Expression"
+										},
+										"method": "GET",
+										"headers": {
+											"Authorization": {
+												"value": "@concat('Bearer ',pipeline().parameters.Bearer_Token)",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "Execute_Activity_Data_Dump",
+									"type": "ExecutePipeline",
+									"dependsOn": [
+										{
+											"activity": "Activity_Date_Url",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "sub-sub-activity",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"activityEventEntities": {
+												"value": "@activity('Activity_Date_Url').output.activityEventEntities",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								{
+									"name": "set_CT",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Activity_Date_Url",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "continuationToken",
+										"value": {
+											"value": "@activity('Activity_Date_Url').output?.continuationToken",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "set_Flag",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Activity_Date_Url",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "Flag",
+										"value": {
+											"value": "@if(equals(coalesce(activity('Activity_Date_Url').output.continuationToken,0),0),bool(0),bool(1))",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"Bearer_Token": {
+						"type": "string"
+					},
+					"startDateTime": {
+						"type": "string"
+					},
+					"endDateTime": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"continuationToken": {
+						"type": "String"
+					},
+					"Flag": {
+						"type": "Boolean"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-12-01T05:55:27Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/sub-sub-activity')]"
+			]
+		}
+	]
+}
