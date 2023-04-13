@@ -1,6 +1,34 @@
 {
 	"name": "Child",
 	"properties": {
+		"activities": [
+			{
+				"name": "Lookup_API",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": []
+			},
+			{
+				"name": "ForEach_API",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup_API",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			}
+		],
 		"folder": {
 			"name": "Version 1"
 		},
